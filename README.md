@@ -7,7 +7,7 @@
 ### main.go
 
 Этот файл содержит код простого HTTP-сервера на Go. Сервер отвечает на запросы к корневому URL ("/") сообщением "Тестовый запуск Go Docker".
-
+```
 package main
 
 import (
@@ -32,39 +32,40 @@ func main() {
   // Если возникнет ошибка, она будет возвращена функцией ListenAndServe
   http.ListenAndServe(":8787", nil)
 }
+```
 ### Dockerfile
 
 Этот файл описывает процесс сборки Docker-образа для нашего Go-приложения. Образ строится в два этапа: сборка (build-stage) и финальный минималистичный образ.
 
 # Используем официальный образ Golang версии 1.22.5 в качестве начального этапа сборки
-FROM golang:1.22.5 AS build-stage
+`FROM golang:1.22.5 AS build-stage`
 
 # Устанавливаем рабочую директорию в контейнере
-WORKDIR /app
+`WORKDIR /app`
 
 # Копируем все файлы из текущей директории на хосте в рабочую директорию контейнера
-COPY . /app
+`COPY . /app`
 
 # Устанавливаем переменную окружения CGO_ENABLED в 0, чтобы отключить использование CGO
-ENV CGO_ENABLED=0
+`ENV CGO_ENABLED=0`
 
 # Компилируем Go-приложение и сохраняем исполняемый файл с именем server в директорию /app
-RUN go build -o /app/server /app/main.go
+`RUN go build -o /app/server /app/main.go`
 
 # Используем минималистичный базовый образ для финального контейнера
-FROM scratch
+`FROM scratch`
 
 # Устанавливаем рабочую директорию в корневую директорию контейнера
-WORKDIR /
+`WORKDIR /`
 
 # Копируем исполняемый файл из начального этапа сборки в текущую рабочую директорию
-COPY --from=build-stage /app/server server
+`COPY --from=build-stage /app/server server`
 
 # Открываем порт 8787 для доступа к приложению из вне
-EXPOSE 8787
+`EXPOSE 8787`
 
 # Устанавливаем команду по умолчанию для запуска при старте контейнера
-ENTRYPOINT [ "/server" ]
+`ENTRYPOINT [ "/server" ]`
 ## Инструкция по использованию
 
 ### При работе с Docker и Go
@@ -76,12 +77,12 @@ ENTRYPOINT [ "/server" ]
 5. Откройте Docker Desktop.
 6. Соберите Docker-образ для вашего приложения командой:
   
-   docker build -t sf_server .
+   `docker build -t sf_server .`
    
    - -t указывает имя, под которым будет использоваться контейнер.
 7. Запустите сервер командой:
   
-   docker run -d --rm -p 8788:8787 --name sf_server1 sf_server
+   `docker run -d --rm -p 8788:8787 --name sf_server1 sf_server`
    
    - -d запускает контейнер в фоновом режиме.
    - --rm удаляет контейнер после остановки.
@@ -89,6 +90,6 @@ ENTRYPOINT [ "/server" ]
    - --name указывает имя контейнера.
 8. Для установки и запуска Selenoid с GitHub:
   
-   ./selenoid_windows_amd64.exe selenoid start --browsers "chrome" --last-versions 1
+   `./selenoid_windows_amd64.exe selenoid start --browsers "chrome" --last-versions 1`
    
 Теперь вы можете открыть браузер и перейти по адресу http://localhost:8788, чтобы увидеть сообщение "Тестовый запуск Go Docker".
